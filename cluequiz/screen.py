@@ -145,7 +145,7 @@ class Screen:
                             self.scores[i] = self.bigfont.render(str(instance.get_score(i)), True, TEXT_COLOR, PLAYERS[i])
                         self.state = SCOREBOARD
                     else:
-                        self.state = CHOOSING
+                        self.state = DISPLAY_QUESTION
         elif self.state == RESPONDING:
             if event.type == KEYDOWN:
                 if event.key == K_j:
