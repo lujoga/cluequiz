@@ -14,24 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import pygame
-from pygame.locals import FULLSCREEN, QUIT, KEYDOWN, K_ESCAPE
-from cluequiz.game import Game
+FONT_SIZE = 36
+BIGFONT_SIZE = 96
 
-def main():
-    pygame.display.init()
-    pygame.font.init()
-    pygame.display.set_mode((0, 0), FULLSCREEN)
-    instance = Game()
+PLAYERS = ((255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 191, 0))
 
-    while True:
-        for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                return
-            else:
-                instance.handle(event)
-        instance.update()
-        pygame.display.flip()
+BACKGROUND = (  0,   0,   0)
+TEXT_COLOR = (255, 255, 255)
+CLUE_COLOR = ( 63,  63,  63)
 
-if __name__ == '__main__':
-    main()
+CELL_PADDING = 8

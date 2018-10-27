@@ -8,5 +8,6 @@ setup(
         'pygame',
         'pyyaml',
         'pyserial',
+        'Pillow',
     ],
 )
