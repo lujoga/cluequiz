@@ -15,13 +15,13 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame
-from pygame.locals import NOFRAME, QUIT, KEYDOWN, K_ESCAPE
+from pygame.locals import FULLSCREEN, QUIT, KEYDOWN, K_ESCAPE
 from cluequiz.game import Game
 
 def main():
     pygame.display.init()
     pygame.font.init()
-    pygame.display.set_mode((0, 0), NOFRAME)
+    pygame.display.set_mode((0, 0), FULLSCREEN)
     instance = Game()
 
     while True:
