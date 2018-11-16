@@ -15,28 +15,14 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame
-import serial
-from pygame.locals import K_1, K_2, K_3, K_4
+from cluequiz.serial import Serial
 from yaml import dump, load
 from cluequiz.screen import Screen
 
 CONFIG_FILE = 'config.yml'
 
-class SerialEmulator:
-    def read(self):
-        pressed = pygame.key.get_pressed()
-        if pressed[K_1]:
-            return b'1'
-        elif pressed[K_2]:
-            return b'2'
-        elif pressed[K_3]:
-            return b'3'
-        elif pressed[K_4]:
-            return b'4'
-        return b''
-
 class Game:
-    def __init__(self):
+    def __init__(self, save):
         self.config = {}
         with open(CONFIG_FILE, 'r') as f:
             self.config = load(f)
@@ -45,12 +31,7 @@ class Game:
             raise ValueError('At least one complete clue set is needed')
         self.next = 0
 
-        self.screen = Screen(self)
-
-        try:
-            self.serial = serial.Serial(self.get_config('serial.port', '/dev/ttyUSB0'), self.get_config('serial.baud', 9600), timeout=0)
-        except serial.SerialException as msg:
-            self.serial = SerialEmulator()
+        self.serial = Serial(self.get_config('serial.port', '/dev/ttyUSB0'), self.get_config('serial.baud', 9600))
         
         self.state = []
         for i in range(6):
@@ -60,6 +41,22 @@ class Game:
         self.choosing = 0
         self.responding = None
         self.responded = [ False, False, False, False ]
+
+        if save:
+            with open(save, 'r') as f:
+                s = load(f)
+                if len(s['board']) != 6:
+                    raise ValueError('Serialized board state must have six columns')
+                for r in s['board']:
+                    if len(r) != 5:
+                        raise ValueError('Serialized board state must have five rows')
+                if len(s['scores']) != 4:
+                    raise ValueError('There have to be exactly four score values')
+                self.state = s['board']
+                self.scores = s['scores']
+                self.choosing = s['choosing']
+
+        self.screen = Screen(self)
 
     def get_config(self, key, default=None):
         value = self._resolve(key, self.config)
@@ -171,4 +168,5 @@ class Game:
         self.screen.handle(event, self)
 
     def update(self):
+        self.serial.keep_alive()
         self.screen.update(self)

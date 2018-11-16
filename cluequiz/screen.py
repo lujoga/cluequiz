@@ -46,7 +46,7 @@ class Screen:
             self.values.append(self.font.render(str(i*100), True, TEXT_COLOR, CLUE_COLOR))
         self.scores = []
         for i in range(4):
-            self.scores.append(self.font.render(str(0), True, TEXT_COLOR))
+            self.scores.append(self.font.render(str(instance.get_score(i)), True, TEXT_COLOR))
 
         self.load_clue_set(instance.next_clue_set())
 

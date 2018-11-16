@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame
+from sys import argv
 from pygame.locals import FULLSCREEN, QUIT, KEYDOWN, K_ESCAPE
 from cluequiz.game import Game
 
@@ -22,7 +23,7 @@ def main():
     pygame.display.init()
     pygame.font.init()
     pygame.display.set_mode((0, 0), FULLSCREEN)
-    instance = Game()
+    instance = Game(None if len(argv) < 2 else argv[1])
 
     while True:
         for event in pygame.event.get():
