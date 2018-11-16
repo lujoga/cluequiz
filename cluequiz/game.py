@@ -17,7 +17,7 @@
 import pygame
 import serial
 from pygame.locals import K_1, K_2, K_3, K_4
-from yaml import load
+from yaml import dump, load
 from cluequiz.screen import Screen
 
 CONFIG_FILE = 'config.yml'
@@ -106,6 +106,7 @@ class Game:
 
     def ignore_clue(self):
         self.state[self.sel[0]][self.sel[1]] = -1
+        self.save_state()
 
     def finished(self):
         for s in self.state:
@@ -123,9 +124,11 @@ class Game:
         self.state[self.sel[0]][self.sel[1]] = self.responding
         self.scores[self.responding] = self.scores[self.responding] + (self.sel[1]+1) * 100
         self.choosing = self.responding
+        self.save_state()
 
     def wrong(self):
         self.scores[self.responding] = self.scores[self.responding] - (self.sel[1]+1) * 100
+        self.save_state()
 
     def get_score(self, i):
         return self.scores[i]
@@ -158,6 +161,11 @@ class Game:
         self.choosing = 0
         self.responding = None
         self.responded = [ False, False, False, False ]
+        self.save_state()
+
+    def save_state(self):
+        with open('autosave.yml', 'w') as f:
+            f.write(dump({'board': self.state, 'scores': self.scores, 'choosing': self.choosing}))
 
     def handle(self, event):
         self.screen.handle(event, self)
