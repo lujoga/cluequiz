@@ -46,7 +46,7 @@ class Screen:
             self.values.append(self.font.render(str(i*100), True, TEXT_COLOR, CLUE_COLOR))
         self.scores = []
         for i in range(4):
-            self.scores.append(self.font.render(str(instance.get_score(i)), True, TEXT_COLOR))
+            self.render_score(i, instance)
 
         self.load_clue_set(instance.next_clue_set())
 
@@ -140,12 +140,7 @@ class Screen:
                 elif event.key == K_DELETE:
                     instance.ignore_clue()
                     instance.clear_responded()
-                    if instance.finished():
-                        for i in range(4):
-                            self.scores[i] = self.bigfont.render(str(instance.get_score(i)), True, TEXT_COLOR, PLAYERS[i])
-                        self.state = SCOREBOARD
-                    else:
-                        self.state = DISPLAY_QUESTION
+                    self.state = DISPLAY_QUESTION
         elif self.state == RESPONDING:
             if event.type == KEYDOWN:
                 if event.key == K_j:
