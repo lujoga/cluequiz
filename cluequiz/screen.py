@@ -19,6 +19,11 @@ from pygame.locals import SRCALPHA, MOUSEBUTTONDOWN, KEYDOWN, K_BACKSPACE, K_DEL
 from PIL import Image
 from yaml import load
 from cluequiz.style import *
+from os.path import dirname, join
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import ImageFormatter
+from io import BytesIO
 
 CHOOSING = 0
 DISPLAY_CLUE = 1
@@ -44,7 +49,7 @@ class Screen:
         self.values = []
         for i in range(1, 6):
             self.values.append(self.font.render(str(i*100), True, TEXT_COLOR, CLUE_COLOR))
-        self.scores = []
+        self.scores = [ None, None, None, None ]
         for i in range(4):
             self.render_score(i, instance)
 
@@ -67,6 +72,12 @@ class Screen:
         im.thumbnail((w, h))
 
         image = pygame.image.fromstring(im.tobytes('raw', 'RGB'), im.size, 'RGB')
+        image.convert()
+        return image
+
+    def render_code(self, code, lang):
+        formatter = ImageFormatter(font_size=FONT_SIZE, line_numbers=False, style=CODE_STYLE)
+        image = pygame.image.load(BytesIO(highlight(code, get_lexer_by_name(lang), formatter)), 'code.png')
         image.convert()
         return image
 
@@ -102,12 +113,15 @@ class Screen:
                 raise ValueError('A valid category has exactly five clues')
             for o in clues:
                 i = len(self.categories)
-                c = str(o['clue'])
-                if c.startswith('img:'):
-                    path = '' if yml.rfind('/') == -1 else yml[:yml.rfind('/')+1]
-                    self.clues[i].append(self.load_image(path+c[4:]))
+                if 'image' in o:
+                    self.clues[i].append(self.load_image(join(dirname(yml), o['image'])))
+                elif 'clue' in o:
+                    if 'lang' in o:
+                        self.clues[i].append(self.render_code(o['clue'], o['lang']))
+                    else:
+                        self.clues[i].append(self.render_wrapped(o['clue'], self.bigfont, TEXT_COLOR, self.screen_w))
                 else:
-                    self.clues[i].append(self.render_wrapped(c, self.bigfont, TEXT_COLOR, self.screen_w))
+                    raise ValueError('Clue has neither text nor image')
                 self.questions[i].append(self.render_wrapped(str(o['question']), self.bigfont, TEXT_COLOR, self.screen_w))
             self.categories.append(self.render_wrapped(category, self.font, TEXT_COLOR, self.clue_w))
 

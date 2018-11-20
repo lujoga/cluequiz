@@ -51,6 +51,29 @@ Category 2:
   - ...
 ```
 
+To use an image as a clue replace the `clue` key with an `image` key:
+
+```YAML
+- ...
+- image: image.jpg
+  question: Question?
+- ...
+```
+
+If you want to display code as a clue, you can have it syntax-highlighted by specifying a `lang` key:
+
+```YAML
+- ...
+- clue: |
+        a = 3
+        b = 4
+        c = (a**2 + b**2)**0.5
+        assert c == 5.0
+  lang: python
+  question: What is a Pythagorean triple?
+- ...
+```
+
 ### Serial configuration
 
 If clue quiz is able to establish a connection to /dev/ttyUSB0, the serial port will be read instead of polling keys '1', '2', '3' and '4'. To connect to some other port or use a different baud rate, `serial.port` and `serial.baud` can be set in the config:

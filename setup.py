@@ -9,5 +9,6 @@ setup(
         'pyyaml',
         'pyserial',
         'Pillow',
+        'Pygments',
     ],
 )
