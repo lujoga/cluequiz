@@ -11,4 +11,9 @@ setup(
         'Pillow',
         'Pygments',
     ],
+    entry_points={
+        'console_scripts': [
+            'cluequiz=cluequiz.__main__:main'
+        ]
+    }
 )

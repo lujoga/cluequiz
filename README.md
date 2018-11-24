@@ -86,11 +86,11 @@ serial:
 
 ## Usage
 
-To start clue quiz, enter the virtual environment if you have not already and run the module 'cluequiz':
+To start clue quiz, enter the virtual environment if you have not already and run `cluequiz`:
 
 ```
 source env/bin/activate
-python -m cluequiz
+cluequiz
 ```
 
 ### Choosing
