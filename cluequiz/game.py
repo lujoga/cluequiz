@@ -14,15 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import pygame
-from cluequiz.serial import Serial
+from copy import deepcopy
 from yaml import dump, load
+
+from cluequiz.serial import Serial
 from cluequiz.screen import Screen
+from cluequiz.helper import GameStateHistory, logger
+
 
 CONFIG_FILE = 'config.yml'
 
+
 class Game:
     def __init__(self, save):
+        self.history = []
         self.config = {}
         with open(CONFIG_FILE, 'r') as f:
             self.config = load(f)
@@ -32,7 +37,7 @@ class Game:
         self.next = 0
 
         self.serial = Serial(self.get_config('serial.port', '/dev/ttyUSB0'), self.get_config('serial.baud', 9600))
-        
+
         self.state = []
         for i in range(6):
             self.state.append([ None, None, None, None, None ])
@@ -57,6 +62,7 @@ class Game:
                 self.choosing = s['choosing']
 
         self.screen = Screen(self)
+        self.append_history()
 
     def get_config(self, key, default=None):
         value = self._resolve(key, self.config)
@@ -161,8 +167,37 @@ class Game:
         self.save_state()
 
     def save_state(self):
+        self.append_history()
         with open('autosave.yml', 'w') as f:
-            f.write(dump({'board': self.state, 'scores': self.scores, 'choosing': self.choosing}))
+            f.write(dump({
+                'board': self.state,
+                'scores': self.scores,
+                'choosing': self.choosing
+            }))
+
+    def append_history(self):
+        """Appenend current game state to history."""
+        history_entry = GameStateHistory(
+            state=deepcopy(self.state),
+            scores=deepcopy(self.scores),
+            choosing=deepcopy(self.choosing),
+            responded=deepcopy(self.responded),
+        )
+        self.history.append(history_entry)
+
+    def rollback(self, age=1):
+        """Restore to the state of an history entry."""
+        if len(self.history) >= age:
+            index = age * -1
+            restore = deepcopy(self.history[index])
+            self.history = self.history[0:index] or [self.history[0]]
+
+            logger.warning('Rolling back to %s.', restore)
+            self.state, self.scores, self.choosing, self.responded = restore
+            self.screen.render_score(player=None, instance=self)
+
+        else:
+            logger.warning('Can not rollback that far.')
 
     def handle(self, event):
         self.screen.handle(event, self)

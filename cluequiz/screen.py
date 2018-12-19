@@ -15,15 +15,28 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame
-from pygame.locals import SRCALPHA, MOUSEBUTTONDOWN, KEYDOWN, K_BACKSPACE, K_DELETE, K_j, K_n
+from pygame.locals import (
+    K_BACKSPACE,
+    K_DELETE,
+    KEYDOWN,
+    K_f,
+    K_j,
+    K_n,
+    K_u,
+    MOUSEBUTTONDOWN,
+    SRCALPHA,
+)
 from PIL import Image
 from yaml import load
-from cluequiz.style import *
 from os.path import dirname, join
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import ImageFormatter
 from io import BytesIO
+
+from cluequiz.style import *
+from cluequiz.config import config
+
 
 CHOOSING = 0
 DISPLAY_CLUE = 1
@@ -31,9 +44,14 @@ RESPONDING = 2
 DISPLAY_QUESTION = 3
 SCOREBOARD = 4
 
+
 class Screen:
+
     def __init__(self, instance):
         screen_size = pygame.display.get_surface().get_size()
+        if config.debug:
+            screen_size = (800, 600)
+
         self.screen_w = screen_size[0] - (screen_size[0] % 12)
         cell_w = screen_size[0] // 12
         self.clue_w = cell_w * 2
@@ -50,8 +68,7 @@ class Screen:
         for i in range(1, 6):
             self.values.append(self.font.render(str(i*100), True, TEXT_COLOR, CLUE_COLOR))
         self.scores = [ None, None, None, None ]
-        for i in range(4):
-            self.render_score(i, instance)
+        self.render_score(None, instance)
 
         self.load_clue_set(instance.next_clue_set())
 
@@ -128,8 +145,13 @@ class Screen:
         if len(self.categories) != 6:
             raise ValueError('A valid clue set has exactly six categories')
 
-    def render_score(self, i, instance):
-        self.scores[i] = self.font.render(str(instance.get_score(i)), True, TEXT_COLOR)
+    def render_score(self, player, instance):
+        """Render a specific or all player's scores."""
+        if player is None:
+            for player in range(4):
+                self.render_score(player, instance)
+        else:
+            self.scores[player] = self.font.render(str(instance.get_score(player)), True, TEXT_COLOR)
 
     def offset_rect(self, x, y, w, h):
         return pygame.Rect(self.padding[0] + x, self.padding[1] + y, w, h)
@@ -138,6 +160,12 @@ class Screen:
         return pygame.Rect(self.padding[0]+p+x, self.padding[1]+p+y, w-2*p, h-2*p)
 
     def handle(self, event, instance):
+        if event.type == KEYDOWN:
+            if event.key == K_f:
+                pygame.display.toggle_fullscreen()
+            elif event.key == K_u:
+                instance.rollback(1)
+
         if self.state == CHOOSING:
             if event.type == MOUSEBUTTONDOWN:
                 x = (event.pos[0] - self.padding[0]) // self.clue_w
@@ -183,8 +211,7 @@ class Screen:
         elif self.state == SCOREBOARD:
             if event.type == KEYDOWN:
                 instance.clear()
-                for i in range(4):
-                    self.render_score(i, instance)
+                self.render_score(False, instance)
                 self.load_clue_set(instance.next_clue_set())
                 self.state = CHOOSING
 
@@ -196,7 +223,7 @@ class Screen:
 
         display = pygame.display.get_surface()
         display.fill(BACKGROUND if self.state != RESPONDING else PLAYERS[instance.get_responding()])
-        
+
         px, py = self.padding
 
         if self.state == CHOOSING:
@@ -227,7 +254,7 @@ class Screen:
             else:
                 s = self.clues[x][y]
             display.blit(s, s.get_rect(centerx=px+self.clue_w*3, centery=py+self.cell_h*3))
-        
+
         if self.state != SCOREBOARD:
             for i in range(4):
                 display.fill(PLAYERS[i], rect=self.offset_rect(self.score_w*i, self.cell_h*6, self.score_w, self.cell_h))
