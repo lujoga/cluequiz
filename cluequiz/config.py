@@ -1,4 +1,4 @@
-import os
+from os import environ
 from yaml import load
 
 
@@ -7,13 +7,15 @@ class Config():
     UNSET = object()
 
     def __init__(self):
-        self.config_file = os.environ.get('CONFIG_FILE', 'config.yml')
+        self.config_file = environ.get('CONFIG_FILE', 'config.yml')
         with open(self.config_file) as f:
             self.config = load(f)
 
-        self.config['debug'] = False
-        if os.environ.get('DEBUG', 'False') in ['True', 'true', 'yes', 'y']:
-            self.config['debug'] = True
+        if 'debug' not in self.config:
+            self.config['debug'] = False
+
+        if 'DEBUG' in environ:
+            self.config['debug'] = environ.get('DEBUG', 'False') in ['True', 'true', 'yes', 'y']
 
         print(self.config)
 
