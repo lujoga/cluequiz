@@ -20,23 +20,18 @@ from yaml import dump, load
 from cluequiz.serial import Serial
 from cluequiz.screen import Screen
 from cluequiz.helper import GameStateHistory, logger
-
-
-CONFIG_FILE = 'config.yml'
+from cluequiz.config import config
 
 
 class Game:
     def __init__(self, save):
         self.history = []
-        self.config = {}
-        with open(CONFIG_FILE, 'r') as f:
-            self.config = load(f)
-        self.clue_sets = self.get_config('clue-sets')
+        self.clue_sets = config('clue-sets')
         if len(self.clue_sets) == 0:
             raise ValueError('At least one complete clue set is needed')
         self.next = 0
 
-        self.serial = Serial(self.get_config('serial.port', '/dev/ttyUSB0'), self.get_config('serial.baud', 9600))
+        self.serial = Serial(config('serial.port', '/dev/ttyUSB0'), config('serial.baud', 9600))
 
         self.state = []
         for i in range(6):
@@ -63,26 +58,6 @@ class Game:
 
         self.screen = Screen(self)
         self.append_history()
-
-    def get_config(self, key, default=None):
-        value = self._resolve(key, self.config)
-        if value != None:
-            return value
-        if default != None:
-            return default
-        raise SystemExit('Required config key is missing')
-
-    def _resolve(self, key, parent):
-        i = key.find('.')
-        if i == -1:
-            if key in parent:
-                return parent[key]
-            return None
-
-        k = key[:i]
-        if k in parent:
-            return self._resolve(key[i+1:], parent[k])
-        return None
 
     def next_clue_set(self):
         clues = self.clue_sets[self.next]
