@@ -211,7 +211,7 @@ class Screen:
         elif self.state == SCOREBOARD:
             if event.type == KEYDOWN:
                 instance.clear()
-                self.render_score(False, instance)
+                self.render_score(None, instance)
                 self.load_clue_set(instance.next_clue_set())
                 self.state = CHOOSING
 
