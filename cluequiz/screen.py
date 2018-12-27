@@ -74,7 +74,7 @@ class Screen:
 
         self.state = CHOOSING
 
-    def load_image(self, name):
+    def load_image(self, name, bg):
         try:
             im = Image.open(name)
         except IOError as msg:
@@ -88,8 +88,18 @@ class Screen:
             h = self.cell_h * 6
         im.thumbnail((w, h))
 
-        image = pygame.image.fromstring(im.tobytes('raw', 'RGB'), im.size, 'RGB')
+        if config.debug:
+            print(name, im.mode)
+
+        image = pygame.image.fromstring(im.tobytes('raw', im.mode), im.size, im.mode)
         image.convert()
+
+        if bg:
+            image_bg = pygame.Surface(im.size)
+            image_bg.fill(bg)
+            image_bg.blit(image, (0, 0))
+            return image_bg
+
         return image
 
     def render_code(self, code, lang):
@@ -131,7 +141,8 @@ class Screen:
             for o in clues:
                 i = len(self.categories)
                 if 'image' in o:
-                    self.clues[i].append(self.load_image(join(dirname(yml), o['image'])))
+                    bg = None if 'bg' not in o else o['bg']
+                    self.clues[i].append(self.load_image(join(dirname(yml), o['image']), bg))
                 elif 'clue' in o:
                     if 'lang' in o:
                         self.clues[i].append(self.render_code(o['clue'], o['lang']))

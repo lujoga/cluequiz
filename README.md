@@ -51,11 +51,12 @@ Category 2:
   - ...
 ```
 
-To use an image as a clue replace the `clue` key with an `image` key:
+To use an image as a clue replace the `clue` key with an `image` key. An optional `bg` key may also be specified to fill the background with the given color:
 
 ```YAML
 - ...
 - image: image.jpg
+  bg: [255, 255, 255]
   question: Question?
 - ...
 ```
