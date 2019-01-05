@@ -55,9 +55,9 @@ class Game:
                 self.state = s['board']
                 self.scores = s['scores']
                 self.choosing = s['choosing']
+        self.append_history()
 
         self.screen = Screen(self)
-        self.append_history()
 
     def next_clue_set(self):
         clues = self.clue_sets[self.next]
@@ -151,7 +151,7 @@ class Game:
             }))
 
     def append_history(self):
-        """Appenend current game state to history."""
+        """Append current game state to history."""
         history_entry = GameStateHistory(
             state=deepcopy(self.state),
             scores=deepcopy(self.scores),
@@ -172,7 +172,7 @@ class Game:
             self.screen.render_score(player=None, instance=self)
 
         else:
-            logger.warning('Can not rollback that far.')
+            logger.warning('Cannot roll back that far.')
 
     def handle(self, event):
         self.screen.handle(event, self)
