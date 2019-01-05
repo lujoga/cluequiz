@@ -115,7 +115,7 @@ class Game:
         return self.choosing
 
     def set_responding(self, i):
-        if not self.responded[i]:
+        if config('ignore-responded', False) or not self.responded[i]:
             self.responding = i
             self.responded[i] = True
             return True
@@ -125,12 +125,15 @@ class Game:
         return self.responding
 
     def all_responded(self):
+        if config('ignore-responded', False):
+            return False
         return not (False in self.responded)
 
     def clear_responded(self):
         self.responded = [ False, False, False, False ]
 
     def clear(self):
+        self.history = []
         self.state = []
         for i in range(6):
             self.state.append([ None, None, None, None, None ])
@@ -169,7 +172,6 @@ class Game:
 
             logger.warning('Rolling back to %s.', restore)
             self.state, self.scores, self.choosing, self.responded = restore
-            self.screen.render_score(player=None, instance=self)
 
         else:
             logger.warning('Cannot roll back that far.')
