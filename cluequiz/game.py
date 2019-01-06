@@ -166,15 +166,19 @@ class Game:
     def rollback(self, age=1):
         """Restore to the state of an history entry."""
         if len(self.history) >= age:
+            if config.debug:
+                logger.warning('***************')
+                logger.warning('\tHistory before %s\n', self.history)
+
             index = age * -1
-            restore = deepcopy(self.history[index])
             self.history = self.history[0:index] or [self.history[0]]
+            restore = deepcopy(self.history[index])
 
-            logger.warning('Rolling back to %s.', restore)
+            if config.debug:
+                logger.warning('\tRolling back to %s\n', restore)
+                logger.warning('\tHistory after %s', self.history)
+
             self.state, self.scores, self.choosing, self.responded = restore
-
-        else:
-            logger.warning('Cannot roll back that far.')
 
     def handle(self, event):
         self.screen.handle(event, self)

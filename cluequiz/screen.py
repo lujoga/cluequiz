@@ -176,7 +176,7 @@ class Screen:
                 pygame.display.toggle_fullscreen()
             elif event.key == K_u:
                 instance.rollback(1)
-                self.screen.render_score(player=None, instance=self)
+                self.render_score(None, instance)
 
 
         if self.state == CHOOSING:
