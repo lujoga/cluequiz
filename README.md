@@ -94,6 +94,8 @@ source env/bin/activate
 cluequiz
 ```
 
+In any screen, previous actions that changed the game state can be undone by pressing 'U'.
+
 ### Choosing
 
 In the clue selection screen, one can choose a clue by clicking the respective field.
