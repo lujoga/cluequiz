@@ -18,20 +18,22 @@ import pygame
 from sys import argv
 from pygame.locals import FULLSCREEN, QUIT, KEYDOWN, K_ESCAPE
 from cluequiz.game import Game
+from cluequiz.screen import Screen
 
 def main():
     pygame.display.init()
     pygame.font.init()
     pygame.display.set_mode((0, 0), FULLSCREEN)
     instance = Game(None if len(argv) < 2 else argv[1])
+    screen = Screen(instance)
 
     while True:
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 return
             else:
-                instance.handle(event)
-        instance.update()
+                screen.handle(event, instance)
+        screen.update(instance)
         pygame.display.flip()
 
 if __name__ == '__main__':

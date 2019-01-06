@@ -17,11 +17,8 @@
 from copy import deepcopy
 from yaml import dump, load
 
-from cluequiz.serial import Serial
-from cluequiz.screen import Screen
 from cluequiz.helper import GameStateHistory, logger
 from cluequiz.config import config
-
 
 class Game:
     def __init__(self, save):
@@ -30,8 +27,6 @@ class Game:
         if len(self.clue_sets) == 0:
             raise ValueError('At least one complete clue set is needed')
         self.next = 0
-
-        self.serial = Serial(config('serial.port', '/dev/ttyUSB0'), config('serial.baud', 9600))
 
         self.state = []
         for i in range(6):
@@ -57,27 +52,12 @@ class Game:
                 self.choosing = s['choosing']
         self.append_history()
 
-        self.screen = Screen(self)
-
     def next_clue_set(self):
         clues = self.clue_sets[self.next]
         self.next = self.next + 1
         if self.next == len(self.clue_sets):
             self.next = 0
         return clues
-
-    def read_serial(self):
-        b = self.serial.read()
-        if len(b) > 0:
-            i = b[0] - 49
-            if i >= 0 and i < 4:
-                return i
-        return None
-
-    def empty_serial(self):
-        b = self.serial.read()
-        while len(b) > 0:
-            b = self.serial.read()
 
     def get_state_at(self, x, y):
         return self.state[x][y]
@@ -179,10 +159,3 @@ class Game:
                 logger.warning('\tHistory after %s', self.history)
 
             self.state, self.scores, self.choosing, self.responded = restore
-
-    def handle(self, event):
-        self.screen.handle(event, self)
-
-    def update(self):
-        self.serial.keep_alive()
-        self.screen.update(self)

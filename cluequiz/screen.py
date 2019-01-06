@@ -34,9 +34,9 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import ImageFormatter
 from io import BytesIO
 
+from cluequiz.serial import Serial
 from cluequiz.style import *
 from cluequiz.config import config
-
 
 CHOOSING = 0
 DISPLAY_CLUE = 1
@@ -44,10 +44,10 @@ RESPONDING = 2
 DISPLAY_QUESTION = 3
 SCOREBOARD = 4
 
-
 class Screen:
-
     def __init__(self, instance):
+        self.serial = Serial(config('serial.port', '/dev/ttyUSB0'), config('serial.baud', 9600))
+
         screen_size = pygame.display.get_surface().get_size()
         if config.debug:
             screen_size = (800, 600)
@@ -73,6 +73,19 @@ class Screen:
         self.load_clue_set(instance.next_clue_set())
 
         self.state = CHOOSING
+
+    def read_serial(self):
+        b = self.serial.read()
+        if len(b) > 0:
+            i = b[0] - 49
+            if i >= 0 and i < 4:
+                return i
+        return None
+
+    def empty_serial(self):
+        b = self.serial.read()
+        while len(b) > 0:
+            b = self.serial.read()
 
     def load_image(self, name, bg):
         try:
@@ -178,7 +191,6 @@ class Screen:
                 instance.rollback(1)
                 self.render_score(None, instance)
 
-
         if self.state == CHOOSING:
             if event.type == MOUSEBUTTONDOWN:
                 x = (event.pos[0] - self.padding[0]) // self.clue_w
@@ -186,7 +198,7 @@ class Screen:
                 if x >= 0 and x < 6 and y >= 0 and y < 5 and instance.get_state_at(x, y) == None:
                     instance.set_selected(x, y)
                     self.state = DISPLAY_CLUE
-                    instance.empty_serial()
+                    self.empty_serial()
         elif self.state == DISPLAY_CLUE:
             if event.type == KEYDOWN:
                 if event.key == K_BACKSPACE:
@@ -212,7 +224,7 @@ class Screen:
                         self.state = DISPLAY_QUESTION
                     else:
                         self.state = DISPLAY_CLUE
-                        instance.empty_serial()
+                        self.empty_serial()
         elif self.state == DISPLAY_QUESTION:
             if event.type == KEYDOWN:
                 if instance.finished():
@@ -229,8 +241,9 @@ class Screen:
                 self.state = CHOOSING
 
     def update(self, instance):
+        self.serial.keep_alive()
         if self.state == DISPLAY_CLUE:
-            i = instance.read_serial()
+            i = self.read_serial()
             if i != None and instance.set_responding(i):
                 self.state = RESPONDING
 
