@@ -1,5 +1,5 @@
 # Clue quiz
-# Copyright (C) 2018  Luca Schmid
+# Copyright (C) 2018-2019  Luca Schmid
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
