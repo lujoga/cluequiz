@@ -27,11 +27,10 @@ class Config():
         with open(self.config_file) as f:
             self.config = load(f)
 
-        if 'debug' not in self.config:
-            self.config['debug'] = False
-
         if 'DEBUG' in environ:
             self.config['debug'] = environ.get('DEBUG', 'False') in ['True', 'true', 'yes', 'y']
+        if 'VIEWER' in environ:
+            self.config['viewer'] = environ.get('VIEWER', 'False') in ['True', 'true', 'yes', 'y']
 
         print(self.config)
 
@@ -56,6 +55,10 @@ class Config():
     @property
     def debug(self):
         return self.config.get('debug', False)
+
+    @property
+    def viewer(self):
+        return self.config.get('viewer', False)
 
 
 config = Config()

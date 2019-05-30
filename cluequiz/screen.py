@@ -197,8 +197,13 @@ class Screen:
                 y = (event.pos[1] - self.padding[1]) // self.cell_h - 1
                 if x >= 0 and x < 6 and y >= 0 and y < 5 and instance.get_state_at(x, y) == None:
                     instance.set_selected(x, y)
-                    self.state = DISPLAY_CLUE
+                    self.state = DISPLAY_QUESTION if config.viewer else DISPLAY_CLUE
                     self.empty_serial()
+            elif event.type == KEYDOWN:
+                if event.key == K_DELETE:
+                    instance.clear()
+                    self.render_score(None, instance)
+                    self.load_clue_set(instance.next_clue_set())
         elif self.state == DISPLAY_CLUE:
             if event.type == KEYDOWN:
                 if event.key == K_BACKSPACE:
