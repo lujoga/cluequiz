@@ -22,6 +22,8 @@ Then install the module by executing the following command:
 pip install .
 ```
 
+If there is an error installing `pygame`, you may need to install the SDL libraries beforehand.
+
 ## Setup
 
 Clue quiz requires a config file `config.yml` and one or more clue sets specified in the config. The config file should look something like this:
@@ -75,6 +77,11 @@ If you want to display code as a clue, you can have it syntax-highlighted by spe
 - ...
 ```
 
+### Optional configuration keys
+
+* Setting the `ignore-responded` key to `true` lets players respond infinitely often, but also subtracts points from their scores every time they answer wrongly.
+* Setting the `viewer` key to `true` activates viewer mode, i.e. selecting a clue displays the corresponding question immediately. This is handy when hosting a game created by others.
+
 ### Serial configuration
 
 If clue quiz is able to establish a connection to /dev/ttyUSB0, the serial port will be read instead of polling keys '1', '2', '3' and '4'. To connect to some other port or use a different baud rate, `serial.port` and `serial.baud` can be set in the config:
@@ -84,6 +91,22 @@ serial:
   port: /dev/ttyUSB0
   baud: 9600
 ```
+
+### MQTT configuration
+
+Clue quiz publishes JSON objects via MQTT if the `mqtt.host` key is specified. You may also set `mqtt.port` and `mqtt.topic` to use a port or topic deviating from the default (`1883` and `cluequiz`, respectively).
+
+```YAML
+mqtt:
+  host: mqtt.example.com
+  port: 1883
+  topic: cluequiz
+```
+
+The published JSON objects have `name`, `player` and `value` attributes. `name` is one of `select`, `respond`, `correct` and `wrong`. `value` is the amount of points associated with the selected clue.
+
+* For `"name": "select"`, `player` is the id (0 to 3) of the selecting player.
+* For `"name": "respond"`, `"name": "correct"` and `"name": "wrong"`, `player` is the id (0 to 3) of the responding player.
 
 ## Usage
 

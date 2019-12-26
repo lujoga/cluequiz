@@ -10,6 +10,7 @@ setup(
         'pyserial',
         'Pillow',
         'Pygments',
+        'paho-mqtt',
     ],
     entry_points={
         'console_scripts': [

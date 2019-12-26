@@ -19,6 +19,7 @@ from yaml import dump, load
 
 from cluequiz.helper import GameStateHistory, logger
 from cluequiz.config import config
+from cluequiz.mqtt import publish_event
 
 class Game:
     def __init__(self, save):
@@ -74,6 +75,7 @@ class Game:
 
     def set_selected(self, x, y):
         self.sel = (x, y)
+        publish_event('select', self.choosing, (y+1) * 100)
 
     def get_selected(self):
         return self.sel
@@ -84,9 +86,13 @@ class Game:
         self.choosing = self.responding
         self.save_state()
 
+        publish_event('correct', self.responding, (self.sel[1]+1) * 100)
+
     def wrong(self):
         self.scores[self.responding] = self.scores[self.responding] - (self.sel[1]+1) * 100
         self.save_state()
+
+        publish_event('wrong', self.responding, (self.sel[1]+1) * 100)
 
     def get_score(self, i):
         return self.scores[i]
@@ -98,6 +104,8 @@ class Game:
         if config('ignore-responded', False) or not self.responded[i]:
             self.responding = i
             self.responded[i] = True
+
+            publish_event('respond', i, (self.sel[1]+1) * 100)
             return True
         return False
 
