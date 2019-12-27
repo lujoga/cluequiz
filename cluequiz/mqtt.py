@@ -23,4 +23,7 @@ def publish_event(name, player, value):
     if host:
         port = config('mqtt.port', 1883)
         topic = config('mqtt.topic', 'cluequiz')
-        single(topic, dumps({ 'name': name, 'player': player, 'value': value }), hostname=host, port=port)
+        try:
+            single(topic, dumps({ 'name': name, 'player': player, 'value': value }), hostname=host, port=port)
+        except:
+            pass
