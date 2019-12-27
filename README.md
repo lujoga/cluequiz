@@ -121,7 +121,7 @@ In any screen, previous actions that changed the game state can be undone by pre
 
 ### Choosing
 
-In the clue selection screen, one can choose a clue by clicking the respective field.
+In the clue selection screen, one can choose a clue by clicking the respective field. To set a player's name, press '1' (red), '2' (green), '3' (blue) or '4' (yellow) on the keyboard (serial input won't work), type their name and hit the return key.
 
 ### Display clue
 
