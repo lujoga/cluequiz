@@ -23,6 +23,8 @@ BACKGROUND = (  0,   0,   0)
 TEXT_COLOR = (255, 255, 255)
 CLUE_COLOR = ( 63,  63,  63)
 
+FOG_COLOR = (31, 31, 31, 223)
+
 CELL_PADDING = 8
 
 CODE_STYLE = 'monokai'

@@ -19,6 +19,10 @@ from pygame.locals import (
     K_BACKSPACE,
     K_DELETE,
     KEYDOWN,
+    K_1,
+    K_2,
+    K_3,
+    K_4,
     K_f,
     K_j,
     K_n,
@@ -37,6 +41,7 @@ from io import BytesIO
 from cluequiz.serial import Serial
 from cluequiz.style import *
 from cluequiz.config import config
+from cluequiz.prompt import TEXTINPUTREADY, TextPrompt
 
 CHOOSING = 0
 DISPLAY_CLUE = 1
@@ -69,8 +74,12 @@ class Screen:
             self.values.append(self.font.render(str(i*100), True, TEXT_COLOR, CLUE_COLOR))
         self.scores = [ None, None, None, None ]
         self.render_score(None, instance)
+        self.names = [ None, None, None, None ]
+        self.render_name(None, instance)
 
         self.load_clue_set(instance.next_clue_set())
+
+        self.prompt = TextPrompt(self.font, self.score_w, 'Player name', max_width=self.score_w, placeholder='Hier könnte dein Name stehen')
 
         self.state = CHOOSING
 
@@ -177,6 +186,13 @@ class Screen:
         else:
             self.scores[player] = self.font.render(str(instance.get_score(player)), True, TEXT_COLOR)
 
+    def render_name(self, player, instance):
+        if player == None:
+            for player in range(4):
+                self.render_name(player, instance)
+        else:
+            self.names[player] = self.font.render(str(instance.get_name(player)), True, TEXT_COLOR)
+
     def offset_rect(self, x, y, w, h):
         return pygame.Rect(self.padding[0] + x, self.padding[1] + y, w, h)
 
@@ -184,12 +200,20 @@ class Screen:
         return pygame.Rect(self.padding[0]+p+x, self.padding[1]+p+y, w-2*p, h-2*p)
 
     def handle(self, event, instance):
+        if self.prompt.is_visible():
+            self.prompt.handle(event)
+            return
+
         if event.type == KEYDOWN:
             if event.key == K_f:
                 pygame.display.toggle_fullscreen()
             elif event.key == K_u:
                 instance.rollback(1)
                 self.render_score(None, instance)
+        elif event.type == TEXTINPUTREADY:
+            if event.userdata != None:
+                instance.set_name(event.userdata, event.value)
+                self.render_name(event.userdata, instance)
 
         if self.state == CHOOSING:
             if event.type == MOUSEBUTTONDOWN:
@@ -204,6 +228,22 @@ class Screen:
                     instance.clear()
                     self.render_score(None, instance)
                     self.load_clue_set(instance.next_clue_set())
+                elif event.key == K_1:
+                    self.prompt.set_style(PLAYERS[0])
+                    self.prompt.set_userdata(0)
+                    self.prompt.show()
+                elif event.key == K_2:
+                    self.prompt.set_style(PLAYERS[1])
+                    self.prompt.set_userdata(1)
+                    self.prompt.show()
+                elif event.key == K_3:
+                    self.prompt.set_style(PLAYERS[2])
+                    self.prompt.set_userdata(2)
+                    self.prompt.show()
+                elif event.key == K_4:
+                    self.prompt.set_style(PLAYERS[3])
+                    self.prompt.set_userdata(3)
+                    self.prompt.show()
         elif self.state == DISPLAY_CLUE:
             if event.type == KEYDOWN:
                 if event.key == K_BACKSPACE:
@@ -292,3 +332,6 @@ class Screen:
                 if self.state == CHOOSING and i == instance.get_choosing():
                     display.fill(BACKGROUND, rect=self.pad_rect(self.score_w*i, self.cell_h*6, self.score_w, self.cell_h, CELL_PADDING))
                 display.blit(self.scores[i], self.scores[i].get_rect(centerx=px+self.score_w*(i+0.5), centery=py+self.cell_h*6.5))
+                display.blit(self.names[i], self.names[i].get_rect(centerx=px+self.score_w*(i+0.5)).move(0, py+self.cell_h*7-(self.font.get_linesize()+CELL_PADDING)))
+
+        self.prompt.update(display)

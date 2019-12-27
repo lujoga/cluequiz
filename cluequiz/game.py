@@ -34,6 +34,7 @@ class Game:
             self.state.append([ None, None, None, None, None ])
         self.sel = None
         self.scores = [ 0, 0, 0, 0 ]
+        self.names = ['Nameless #'+str(i+1) for i in range(4)]
         self.choosing = 0
         self.responding = None
         self.responded = [ False, False, False, False ]
@@ -48,8 +49,11 @@ class Game:
                         raise ValueError('Serialized board state must have five rows')
                 if len(s['scores']) != 4:
                     raise ValueError('There have to be exactly four score values')
+                if len(s['names']) != 4:
+                    raise ValueError('There have to be exactly four player names')
                 self.state = s['board']
                 self.scores = s['scores']
+                self.names = s['names']
                 self.choosing = s['choosing']
         self.append_history()
 
@@ -97,6 +101,12 @@ class Game:
     def get_score(self, i):
         return self.scores[i]
 
+    def set_name(self, i, name):
+        self.names[i] = name
+
+    def get_name(self, i):
+        return self.names[i]
+
     def get_choosing(self):
         return self.choosing
 
@@ -127,6 +137,7 @@ class Game:
             self.state.append([ None, None, None, None, None ])
         self.sel = None
         self.scores = [ 0, 0, 0, 0 ]
+        self.names = ['Nameless #'+str(i+1) for i in range(4)]
         self.choosing = 0
         self.responding = None
         self.responded = [ False, False, False, False ]
@@ -138,6 +149,7 @@ class Game:
             f.write(dump({
                 'board': self.state,
                 'scores': self.scores,
+                'names': self.names,
                 'choosing': self.choosing
             }))
 
