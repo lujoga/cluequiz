@@ -191,7 +191,7 @@ class Screen:
             for player in range(4):
                 self.render_name(player, instance)
         else:
-            self.names[player] = self.font.render(str(instance.get_name(player)), True, TEXT_COLOR)
+            self.names[player] = self.font.render(instance.get_name(player), True, TEXT_COLOR)
 
     def offset_rect(self, x, y, w, h):
         return pygame.Rect(self.padding[0] + x, self.padding[1] + y, w, h)
@@ -275,6 +275,7 @@ class Screen:
                 if instance.finished():
                     for i in range(4):
                         self.scores[i] = self.bigfont.render(str(instance.get_score(i)), True, TEXT_COLOR, PLAYERS[i])
+                        self.names[i] = self.bigfont.render(instance.get_name(i), True, TEXT_COLOR, PLAYERS[i])
                     self.state = SCOREBOARD
                 else:
                     self.state = CHOOSING
@@ -282,6 +283,7 @@ class Screen:
             if event.type == KEYDOWN:
                 instance.clear()
                 self.render_score(None, instance)
+                self.render_name(None, instance)
                 self.load_clue_set(instance.next_clue_set())
                 self.state = CHOOSING
 
@@ -318,6 +320,10 @@ class Screen:
             display.blit(self.scores[1], self.scores[1].get_rect(centerx=px+self.score_w*3, centery=py+self.score_h*0.5))
             display.blit(self.scores[2], self.scores[2].get_rect(centerx=px+self.score_w,   centery=py+self.score_h*1.5))
             display.blit(self.scores[3], self.scores[3].get_rect(centerx=px+self.score_w*3, centery=py+self.score_h*1.5))
+            display.blit(self.names[0], self.names[0].get_rect(centerx=px+self.score_w).move(0, py+self.score_h-(self.bigfont.get_linesize()+CELL_PADDING)))
+            display.blit(self.names[1], self.names[1].get_rect(centerx=px+self.score_w*3).move(0, py+self.score_h-(self.bigfont.get_linesize()+CELL_PADDING)))
+            display.blit(self.names[2], self.names[2].get_rect(centerx=px+self.score_w).move(0, py+self.score_h*2-(self.bigfont.get_linesize()+CELL_PADDING)))
+            display.blit(self.names[3], self.names[3].get_rect(centerx=px+self.score_w*3).move(0, py+self.score_h*2-(self.bigfont.get_linesize()+CELL_PADDING)))
         else:
             x, y = instance.get_selected()
             if self.state == DISPLAY_QUESTION:
