@@ -53,6 +53,14 @@ Category 2:
   - ...
 ```
 
+Sounds can be used as clues by supplying a `sound` key instead of `clue`:
+
+```YAML
+- ...
+- sound: sound.ogg
+  question: What is ...?
+```
+
 To use an image as a clue replace the `clue` key with an `image` key. An optional `bg` key may also be specified to fill the background with the given color:
 
 ```YAML
@@ -81,6 +89,7 @@ If you want to display code as a clue, you can have it syntax-highlighted by spe
 
 * Setting the `ignore-responded` key to `true` lets players respond infinitely often, but also subtracts points from their scores every time they answer wrongly.
 * Setting the `viewer` key to `true` activates viewer mode, i.e. selecting a clue displays the corresponding question immediately. This is handy when hosting a game created by others.
+* Set the `music` key to either a single file or a list of files containing music you want to play to help players think.
 
 ### Serial configuration
 
@@ -125,7 +134,7 @@ In the clue selection screen, one can choose a clue by clicking the respective f
 
 ### Display clue
 
-Once the clue is displayed, the players can ring-in by pressing '1', '2', '3' or '4' on the keyboard or send '1', '2', '3' or '4' via the serial connection. Pressing 'Backspace' jumps back to the clue selection screen. 'Delete' removes the clue for this game.
+Once the clue is displayed, the players can ring-in by pressing '1', '2', '3' or '4' on the keyboard or send '1', '2', '3' or '4' via the serial connection. Pressing 'Backspace' jumps back to the clue selection screen. 'Delete' removes the clue for this game. If the clue is a sound, it can be played again by hitting 'Space'. Music is started (and stopped) with the 't' key, if configured.
 
 ### Responding
 

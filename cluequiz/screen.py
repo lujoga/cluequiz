@@ -18,6 +18,7 @@ import pygame
 from pygame.locals import (
     K_BACKSPACE,
     K_DELETE,
+    K_SPACE,
     KEYDOWN,
     K_1,
     K_2,
@@ -26,6 +27,7 @@ from pygame.locals import (
     K_f,
     K_j,
     K_n,
+    K_t,
     K_u,
     MOUSEBUTTONDOWN,
     SRCALPHA,
@@ -69,6 +71,12 @@ class Screen:
         self.font = pygame.font.Font(None, FONT_SIZE)
         self.bigfont = pygame.font.Font(None, BIGFONT_SIZE)
 
+        self.music = config('music', None)
+        if self.music:
+            if isinstance(self.music, str):
+                self.music = [self.music]
+            self.load_next_music()
+
         self.values = []
         for i in range(1, 6):
             self.values.append(self.font.render(str(i*100), True, TEXT_COLOR, CLUE_COLOR))
@@ -81,7 +89,18 @@ class Screen:
 
         self.prompt = TextPrompt(self.font, self.score_w, 'Player name', max_width=self.score_w, placeholder='Hier könnte dein Name stehen')
 
+        self.sound_triggered = False
         self.state = CHOOSING
+
+    def change_state(self, state):
+        if self.state == CHOOSING and state == DISPLAY_CLUE:
+            self.sound_triggered = False
+        self.state = state
+
+    def load_next_music(self):
+        music = self.music[0]
+        pygame.mixer.music.load(music)
+        self.music = self.music[1:] + [music]
 
     def read_serial(self):
         b = self.serial.read()
@@ -162,7 +181,9 @@ class Screen:
                 raise ValueError('A valid category has exactly five clues')
             for o in clues:
                 i = len(self.categories)
-                if 'image' in o:
+                if 'sound' in o:
+                    self.clues[i].append(pygame.mixer.Sound(join(dirname(yml), o['sound'])))
+                elif 'image' in o:
                     bg = None if 'bg' not in o else o['bg']
                     self.clues[i].append(self.load_image(join(dirname(yml), o['image']), bg))
                 elif 'clue' in o:
@@ -171,7 +192,7 @@ class Screen:
                     else:
                         self.clues[i].append(self.render_wrapped(o['clue'], self.bigfont, TEXT_COLOR, self.screen_w))
                 else:
-                    raise ValueError('Clue has neither text nor image')
+                    raise ValueError('Clue has neither text nor image nor sound')
                 self.questions[i].append(self.render_wrapped(str(o['question']), self.bigfont, TEXT_COLOR, self.screen_w))
             self.categories.append(self.render_wrapped(category, self.font, TEXT_COLOR, self.clue_w))
 
@@ -221,7 +242,7 @@ class Screen:
                 y = (event.pos[1] - self.padding[1]) // self.cell_h - 1
                 if x >= 0 and x < 6 and y >= 0 and y < 5 and instance.get_state_at(x, y) == None:
                     instance.set_selected(x, y)
-                    self.state = DISPLAY_QUESTION if config.viewer else DISPLAY_CLUE
+                    self.change_state(DISPLAY_QUESTION if config.viewer else DISPLAY_CLUE)
                     self.empty_serial()
             elif event.type == KEYDOWN:
                 if event.key == K_DELETE:
@@ -248,27 +269,37 @@ class Screen:
             if event.type == KEYDOWN:
                 if event.key == K_BACKSPACE:
                     instance.clear_responded()
-                    self.state = CHOOSING
+                    self.change_state(CHOOSING)
                 elif event.key == K_DELETE:
                     instance.ignore_clue()
                     instance.clear_responded()
-                    self.state = DISPLAY_QUESTION
+                    self.change_state(DISPLAY_QUESTION)
+                elif event.key == K_SPACE:
+                    x, y = instance.get_selected()
+                    s = self.clues[x][y]
+                    if isinstance(s, pygame.mixer.Sound):
+                        s.play()
+                elif event.key == K_t and self.music:
+                    if pygame.mixer.music.get_busy():
+                        self.load_next_music()
+                    else:
+                        pygame.mixer.music.play(-1)
         elif self.state == RESPONDING:
             if event.type == KEYDOWN:
                 if event.key == K_j:
                     instance.correct()
                     instance.clear_responded()
                     self.render_score(instance.get_responding(), instance)
-                    self.state = DISPLAY_QUESTION
+                    self.change_state(DISPLAY_QUESTION)
                 elif event.key == K_n:
                     instance.wrong()
                     self.render_score(instance.get_responding(), instance)
                     if instance.all_responded():
                         instance.ignore_clue()
                         instance.clear_responded()
-                        self.state = DISPLAY_QUESTION
+                        self.change_state(DISPLAY_QUESTION)
                     else:
-                        self.state = DISPLAY_CLUE
+                        self.change_state(DISPLAY_CLUE)
                         self.empty_serial()
         elif self.state == DISPLAY_QUESTION:
             if event.type == KEYDOWN:
@@ -276,23 +307,25 @@ class Screen:
                     for i in range(4):
                         self.scores[i] = self.bigfont.render(str(instance.get_score(i)), True, TEXT_COLOR, PLAYERS[i])
                         self.names[i] = self.bigfont.render(instance.get_name(i), True, TEXT_COLOR, PLAYERS[i])
-                    self.state = SCOREBOARD
+                    self.change_state(SCOREBOARD)
                 else:
-                    self.state = CHOOSING
+                    self.change_state(CHOOSING)
         elif self.state == SCOREBOARD:
             if event.type == KEYDOWN:
                 instance.clear()
                 self.render_score(None, instance)
                 self.render_name(None, instance)
                 self.load_clue_set(instance.next_clue_set())
-                self.state = CHOOSING
+                self.change_state(CHOOSING)
 
     def update(self, instance):
         self.serial.keep_alive()
         if self.state == DISPLAY_CLUE:
             i = self.read_serial()
             if i != None and instance.set_responding(i):
-                self.state = RESPONDING
+                self.change_state(RESPONDING)
+        elif self.music and pygame.mixer.music.get_busy():
+            self.load_next_music()
 
         display = pygame.display.get_surface()
         display.fill(BACKGROUND if self.state != RESPONDING else PLAYERS[instance.get_responding()])
@@ -330,7 +363,12 @@ class Screen:
                 s = self.questions[x][y]
             else:
                 s = self.clues[x][y]
-            display.blit(s, s.get_rect(centerx=px+self.clue_w*3, centery=py+self.cell_h*3))
+            if isinstance(s, pygame.mixer.Sound):
+                if not self.sound_triggered:
+                    s.play()
+                    self.sound_triggered = True
+            else:
+                display.blit(s, s.get_rect(centerx=px+self.clue_w*3, centery=py+self.cell_h*3))
 
         if self.state != SCOREBOARD:
             for i in range(4):
