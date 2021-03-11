@@ -182,7 +182,10 @@ class Screen:
             for o in clues:
                 i = len(self.categories)
                 if 'sound' in o:
-                    self.clues[i].append(pygame.mixer.Sound(join(dirname(yml), o['sound'])))
+                    path = join(dirname(yml), o['sound'])
+                    if config.debug:
+                        print(path)
+                    self.clues[i].append(pygame.mixer.Sound(path))
                 elif 'image' in o:
                     bg = None if 'bg' not in o else o['bg']
                     self.clues[i].append(self.load_image(join(dirname(yml), o['image']), bg))
