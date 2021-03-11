@@ -1,0 +1,14 @@
+---
+
+services:
+  cluequiz:
+    build: .
+    devices:
+      - /dev/snd
+#     - /dev/ttyUSB0
+    environment:
+      - DISPLAY
+      - XAUTHORITY=/tmp/.docker.xauth
+    volumes:
+      - /tmp/.docker.xauth:/tmp/.docker.xauth # xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f /tmp/.docker.xauth nmerge -
+      - /tmp/.X11-unix:/tmp/.X11-unix
