@@ -5,7 +5,7 @@ setup(
     packages=['cluequiz'],
     include_package_data=True,
     install_requires=[
-        'pygame',
+        'pygame==1.9.6',
         'pyyaml',
         'pyserial',
         'Pillow',
