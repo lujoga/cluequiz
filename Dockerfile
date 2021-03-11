@@ -20,7 +20,7 @@ RUN apt-get update && apt-get -y --no-install-recommends install \
 
 COPY cluequiz /usr/local/src/cluequiz/cluequiz/
 COPY LICENSE README.md setup.py /usr/local/src/cluequiz/
-COPY clues.yml config.example.yml /opt/cluequiz/
+COPY clue-set.example.yml config.example.yml /opt/cluequiz/
 
 RUN cd /usr/local/src/cluequiz && pip3 install .
 

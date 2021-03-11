@@ -112,4 +112,6 @@ dmypy.json
 
 # cluequiz
 *.yml
+!clue-set.example.yml
+!config.example.yml
 !docker-compose.yml
