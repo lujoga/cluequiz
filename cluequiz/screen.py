@@ -33,7 +33,7 @@ from pygame.locals import (
     SRCALPHA,
 )
 from PIL import Image
-from yaml import load
+from yaml import Loader, load
 from os.path import dirname, join
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -171,7 +171,7 @@ class Screen:
 
     def load_clue_set(self, yml):
         with open(yml, 'r') as f:
-            clue_set = load(f)
+            clue_set = load(f, Loader=Loader)
 
         self.categories = []
         self.clues = [ [], [], [], [], [], [] ]

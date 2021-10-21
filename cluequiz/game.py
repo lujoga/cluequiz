@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from copy import deepcopy
-from yaml import dump, load
+from yaml import Dumper, Loader, dump, load
 
 from cluequiz.helper import GameStateHistory, logger
 from cluequiz.config import config
@@ -41,7 +41,7 @@ class Game:
 
         if save:
             with open(save, 'r') as f:
-                s = load(f)
+                s = load(f, Loader=Loader)
                 if len(s['board']) != 6:
                     raise ValueError('Serialized board state must have six columns')
                 for r in s['board']:
@@ -151,7 +151,7 @@ class Game:
                 'scores': self.scores,
                 'names': self.names,
                 'choosing': self.choosing
-            }))
+            }, Dumper=Dumper))
 
     def append_history(self):
         """Append current game state to history."""
