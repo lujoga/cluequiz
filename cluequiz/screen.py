@@ -171,7 +171,7 @@ class Screen:
 
     def load_clue_set(self, yml):
         with open(yml, 'r') as f:
-            clue_set = load(f, Loader=Loader)
+            clue_set = load(f, Loader)
 
         self.categories = []
         self.clues = [ [], [], [], [], [], [] ]

@@ -25,7 +25,7 @@ class Config():
     def __init__(self):
         self.config_file = environ.get('CONFIG_FILE', 'config.yml')
         with open(self.config_file) as f:
-            self.config = load(f, Loader=Loader)
+            self.config = load(f, Loader)
 
         if 'DEBUG' in environ:
             self.config['debug'] = environ.get('DEBUG', 'False') in ['True', 'true', 'yes', 'y']
