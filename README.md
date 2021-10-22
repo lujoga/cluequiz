@@ -7,7 +7,7 @@ xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f /tmp/.docker.xauth nm
 sudo docker-compose up
 ```
 
-**Note**: If you're on an M1 Mac, you may encounter an error saying the `pygame.mixer` module could not be found. In this case, [you will have to build PyGame from source](https://stackoverflow.com/a/68877135).
+**Note**: If you're on an M1 Mac, you may encounter an error saying the `pygame.mixer` module could not be found. In this case, [you will have to build PyGame from source](https://stackoverflow.com/a/68877135), though the above probably still applies, i.e. you need PyGame 1.9.6 and SDL 1.2.
 
 ## Installation
 
