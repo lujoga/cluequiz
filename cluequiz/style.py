@@ -14,7 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from pygame.font import match_font
+
+FONT_PATH = None # match_font('Comic Sans')
 FONT_SIZE = 36
+BIGFONT_PATH = None
 BIGFONT_SIZE = 96
 
 PLAYERS = ((255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 191, 0))

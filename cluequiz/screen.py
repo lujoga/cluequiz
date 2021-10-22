@@ -68,8 +68,8 @@ class Screen:
         self.score_h = half_cell_h * 7
         self.padding = ((screen_size[0] % 12) // 2, (screen_size[1] % 14) // 2)
 
-        self.font = pygame.font.Font(None, FONT_SIZE)
-        self.bigfont = pygame.font.Font(None, BIGFONT_SIZE)
+        self.font = pygame.font.Font(FONT_PATH, FONT_SIZE)
+        self.bigfont = pygame.font.Font(BIGFONT_PATH, BIGFONT_SIZE)
 
         self.music = config('music', None)
         if self.music:
