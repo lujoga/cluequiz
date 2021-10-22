@@ -1,6 +1,6 @@
 # Clue quiz
 
-**Note**: Clue quiz seems to break with Python 3.9/PyGame 2. If you use Python 3.8 with PyGame 1.9.6, you should be fine. For now, the dependency will be pinned to version 1.9.6. If your system does not have the required versions, you can run clue quiz with Docker (assuming you use X11):
+**Note**: Clue quiz seems to break with PyGame 2. If you use PyGame 1.9.6, you should be fine. For now, the dependency will be pinned to version 1.9.6. If your system does not have the required version, you can run clue quiz with Docker (assuming you use X11):
 
 ```
 xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f /tmp/.docker.xauth nmerge -
