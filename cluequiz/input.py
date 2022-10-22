@@ -14,9 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import serial
+from .config import config
+from paho.mqtt.client import Client
 from pygame.key import get_pressed
 from pygame.locals import K_1, K_2, K_3, K_4
+import serial
+
+TOPIC = 'cluequiz/pressed_button'
 
 def open_serial(port, baud):
     try:
@@ -24,17 +28,46 @@ def open_serial(port, baud):
     except serial.SerialException:
         return None
 
-class Serial:
-    def __init__(self, port, baud):
-        self.port = port
-        self.baud = baud
-        self.serial = open_serial(port, baud)
+class Input:
+    def __init__(self):
+        self.port = config('serial.port', '/dev/ttyUSB0')
+        self.baud = config('serial.baud', 9600)
+        self.serial = None
+
+        self.queue = []
+        if config('mqtt_input', None):
+            certfile = config('mqtt_input.certfile')
+            keyfile = config('mqtt_input.keyfile')
+            host = config('mqtt_input.host')
+            port = config('mqtt_input.port', 8883)
+
+            def on_connect(client, userdata, flags, rc):
+                if rc != 0:
+                    return
+
+                client.subscribe(TOPIC)
+
+            def on_message(client, userdata, message):
+                if message.topic != TOPIC or message.payload not in ['1', '2', '3', '4']:
+                    return
+
+                self.queue.append(message.payload)
+
+            self.client = Client()
+            self.client.on_connect = on_connect
+            self.client.on_message = on_message
+            self.client.tls_set(certfile=certfile, keyfile=keyfile)
+            self.client.connect(host, port)
+            self.client.loop_start()
 
     def keep_alive(self):
         if not self.serial:
             self.serial = open_serial(self.port, self.baud)
 
     def read(self):
+        if len(self.queue) > 0:
+            return self.queue.pop(0).encode('utf-8')
+
         if self.serial:
             try:
                 return self.serial.read()

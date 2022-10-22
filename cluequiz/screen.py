@@ -40,7 +40,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import ImageFormatter
 from io import BytesIO
 
-from cluequiz.serial import Serial
+from cluequiz.input import Input
 from cluequiz.style import *
 from cluequiz.config import config
 from cluequiz.prompt import TEXTINPUTREADY, TextPrompt
@@ -53,7 +53,7 @@ SCOREBOARD = 4
 
 class Screen:
     def __init__(self, instance):
-        self.serial = Serial(config('serial.port', '/dev/ttyUSB0'), config('serial.baud', 9600))
+        self.input = Input()
 
         screen_size = pygame.display.get_surface().get_size()
         if config.debug:
@@ -102,18 +102,18 @@ class Screen:
         pygame.mixer.music.load(music)
         self.music = self.music[1:] + [music]
 
-    def read_serial(self):
-        b = self.serial.read()
+    def read_input(self):
+        b = self.input.read()
         if len(b) > 0:
             i = b[0] - 49
             if i >= 0 and i < 4:
                 return i
         return None
 
-    def empty_serial(self):
-        b = self.serial.read()
+    def empty_input(self):
+        b = self.input.read()
         while len(b) > 0:
-            b = self.serial.read()
+            b = self.input.read()
 
     def load_image(self, name, bg):
         try:
@@ -246,7 +246,7 @@ class Screen:
                 if x >= 0 and x < 6 and y >= 0 and y < 5 and instance.get_state_at(x, y) == None:
                     instance.set_selected(x, y)
                     self.change_state(DISPLAY_QUESTION if config.viewer else DISPLAY_CLUE)
-                    self.empty_serial()
+                    self.empty_input()
             elif event.type == KEYDOWN:
                 if event.key == K_DELETE:
                     instance.clear()
@@ -303,7 +303,7 @@ class Screen:
                         self.change_state(DISPLAY_QUESTION)
                     else:
                         self.change_state(DISPLAY_CLUE)
-                        self.empty_serial()
+                        self.empty_input()
         elif self.state == DISPLAY_QUESTION:
             if event.type == KEYDOWN:
                 if instance.finished():
@@ -322,9 +322,9 @@ class Screen:
                 self.change_state(CHOOSING)
 
     def update(self, instance):
-        self.serial.keep_alive()
+        self.input.keep_alive()
         if self.state == DISPLAY_CLUE:
-            i = self.read_serial()
+            i = self.read_input()
             if i != None and instance.set_responding(i):
                 self.change_state(RESPONDING)
         elif self.music and pygame.mixer.music.get_busy():
