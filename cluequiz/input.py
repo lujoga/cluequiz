@@ -48,7 +48,7 @@ class Input:
                 client.subscribe(TOPIC)
 
             def on_message(client, userdata, message):
-                if message.topic != TOPIC or message.payload not in ['1', '2', '3', '4']:
+                if message.topic != TOPIC or message.payload not in [b'1', b'2', b'3', b'4']:
                     return
 
                 self.queue.append(message.payload)
@@ -66,7 +66,7 @@ class Input:
 
     def read(self):
         if len(self.queue) > 0:
-            return self.queue.pop(0).encode('utf-8')
+            return self.queue.pop(0)
 
         if self.serial:
             try:
