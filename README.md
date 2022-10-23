@@ -1,13 +1,6 @@
 # Clue quiz
 
-**Note**: Clue quiz seems to break with PyGame 2. If you use PyGame 1.9.6, you should be fine. For now, the dependency will be pinned to version 1.9.6. If your system does not have the required version, you can run clue quiz with Docker (assuming you use X11):
-
-```
-xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f /tmp/.docker.xauth nmerge -
-sudo docker-compose up
-```
-
-**Note**: If you're on an M1 Mac, you may encounter an error saying the `pygame.mixer` module could not be found. In this case, [you will have to build PyGame from source](https://stackoverflow.com/a/68877135), though the above probably still applies, i.e. you need PyGame 1.9.6 and SDL 1.2.
+**Note**: If you're on an M1 Mac, you may encounter an error saying the `pygame.mixer` module could not be found. In this case, [you will have to build PyGame from source](https://stackoverflow.com/a/68877135).
 
 ## Installation
 
@@ -17,6 +10,8 @@ First, clone the repository and cd into the newly created directory:
 git clone https://github.com/lujoga/cluequiz
 cd cluequiz
 ```
+
+### virtualenv
 
 It is recommended to create a Python virtual environment to install clue quiz in:
 
@@ -31,7 +26,23 @@ Then install the module by executing the following command:
 pip install .
 ```
 
+You have to run this command every time you change the source code (`cluequiz/style.py`!). Otherwise, changes will not be picked up.
+Alternatively, you can install the module with the `--editable` flag:
+
+```
+pip install --editable .
+```
+
 If there is an error installing `pygame`, you may need to install the SDL libraries beforehand.
+
+### Docker/X11
+
+You can also run clue quiz in a Docker container:
+
+```
+xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f /tmp/.docker.xauth nmerge -
+sudo docker-compose up
+```
 
 ## Setup
 
@@ -126,6 +137,24 @@ The published JSON objects have `name`, `player` and `value` attributes. `name` 
 * For `"name": "select"`, `player` is the id (0 to 3) of the selecting player.
 * For `"name": "respond"`, `"name": "correct"` and `"name": "wrong"`, `player` is the id (0 to 3) of the responding player.
 
+### MQTT input configuration
+
+MQTT can also be used as an input for ring-in. The MQTT input configuration is separate from the "output" configuration:
+
+```YAML
+mqtt_input:
+  certfile: client-cert.crt
+  keyfile: client-cert.key
+  host: mqtt.example.com
+  port: 8883
+```
+
+It is expected that you provide a client certificate and connect to the MQTT broker via TLS.
+
+Clue quiz will subscribe to topic `cluequiz/pressed_button` and accepts '1', '2', '3' and '4' as a payload.
+
+The `serial2mqtt.py` script in this repository reads from a serial device just like clue quiz and publishes the most recently pressed button to `cluequiz/pressed_button`. See the output of `./serial2mqtt.py --help` for more information.
+
 ## Usage
 
 To start clue quiz, enter the virtual environment if you have not already and run `cluequiz`:
@@ -143,7 +172,7 @@ In the clue selection screen, one can choose a clue by clicking the respective f
 
 ### Display clue
 
-Once the clue is displayed, the players can ring-in by pressing '1', '2', '3' or '4' on the keyboard or send '1', '2', '3' or '4' via the serial connection. Pressing 'Backspace' jumps back to the clue selection screen. 'Delete' removes the clue for this game. If the clue is a sound, it can be played again by hitting 'Space'. Music is started (and stopped) with the 't' key, if configured.
+Once the clue is displayed, the players can ring-in by pressing '1', '2', '3' or '4' on the keyboard, send '1', '2', '3' or '4' via the serial connection or publish '1', '2', '3' or '4' to `cluequiz/pressed_button` on the MQTT input broker. Pressing 'Backspace' jumps back to the clue selection screen. 'Delete' removes the clue for this game. If the clue is a sound, it can be played again by hitting 'Space'. Music is started (and stopped) with the 't' key, if configured.
 
 ### Responding
 
