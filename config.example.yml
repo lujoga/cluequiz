@@ -2,11 +2,16 @@ clue-sets:
   - clue-set.example.yml
 #ignore-responded: true
 #mqtt:
-#  host: localhost
+#  host: mqtt.example.com
 #  port: 1883
 #  topic: cluequiz
+#mqtt_input:
+#  certfile: client.crt
+#  keyfile: client.key
+#  host: mqtt.example.com
+#  port: 8883
 #music: []
 #serial:
 #  port: /dev/ttyUSB0
 #  baud: 9600
-#viewer: false
+#viewer: true
