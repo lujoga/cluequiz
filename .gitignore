@@ -111,6 +111,13 @@ venv.bak/
 dmypy.json
 
 # cluequiz
+boards*
+private/
+*.crt
+*.csr
+*.json
+*.key
+*.pem
 *.yml
 !clue-set.example.yml
 !config.example.yml

@@ -137,6 +137,8 @@ The published JSON objects have `name`, `player` and `value` attributes. `name` 
 * For `"name": "select"`, `player` is the id (0 to 3) of the selecting player.
 * For `"name": "respond"`, `"name": "correct"` and `"name": "wrong"`, `player` is the id (0 to 3) of the responding player.
 
+Example uses of this feature can be found in the `scripts` directory.
+
 ### MQTT input configuration
 
 MQTT can also be used as an input for ring-in. The MQTT input configuration is separate from the "output" configuration:
@@ -153,7 +155,7 @@ It is expected that you provide a client certificate and connect to the MQTT bro
 
 Clue quiz will subscribe to topic `cluequiz/pressed_button` and accepts '1', '2', '3' and '4' as a payload.
 
-The `serial2mqtt.py` script in this repository reads from a serial device just like clue quiz and publishes the most recently pressed button to `cluequiz/pressed_button`. See the output of `./serial2mqtt.py --help` for more information.
+The `serial2mqtt.py` script in the `scripts` directory of this repository reads from a serial device just like clue quiz and publishes the most recently pressed button to `cluequiz/pressed_button`. See the output of `scripts/serial2mqtt.py --help` for more information.
 
 ## Usage
 
