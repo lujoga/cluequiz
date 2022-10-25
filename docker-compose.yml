@@ -3,6 +3,9 @@
 services:
   cluequiz:
     build: .
+#   command:
+#     - cluequiz
+#     - autosave.yml
     devices:
       - /dev/snd:/dev/snd
 #     - /dev/ttyUSB0:/dev/ttyUSB0
