@@ -23,7 +23,7 @@ from cluequiz.screen import Screen
 def main():
     pygame.display.init()
     pygame.font.init()
-    pygame.mixer.init()
+    pygame.mixer.init() # devicename='PULSEAUDIO_DEVICE_DESCRIPTION'
     pygame.display.set_mode((0, 0), FULLSCREEN)
     instance = Game(None if len(argv) < 2 else argv[1])
     screen = Screen(instance)
